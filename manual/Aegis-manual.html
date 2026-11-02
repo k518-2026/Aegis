@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aegis セキュリティスイート 操作マニュアル</title>
+<style>
+:root{
+  --paper:#f5f6f8;
+  --card:#ffffff;
+  --ink:#141821;
+  --ink-soft:#5a6472;
+  --rule:#d7dce4;
+  --rule-strong:#aab3c0;
+  --link:#1a5fb4;
+  --ok:#1f7a4d;
+  --warn:#a8630a;
+  --ng:#bd2b45;
+  --shade:#eef0f4;
+  --gothic:"Yu Gothic UI","Yu Gothic","Hiragino Kaku Gothic ProN","Noto Sans JP","Meiryo",sans-serif;
+  --mincho:"Yu Mincho","YuMincho","Hiragino Mincho ProN","Noto Serif JP","MS PMincho",serif;
+  --mono:"Cascadia Mono","Consolas","SFMono-Regular","Menlo",monospace;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--gothic);
+  font-size:15px;
+  line-height:1.9;
+  text-rendering:optimizeLegibility;
+}
+
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:12px;top:12px;background:#fff;padding:8px 14px;z-index:99;border:2px solid var(--link)}
+
+/* ---------- 全体レイアウト ---------- */
+.wrap{display:grid;grid-template-columns:250px minmax(0,1fr);gap:48px;max-width:1180px;margin:0 auto;padding:0 32px}
+
+/* ---------- 表紙 ---------- */
+.cover{border-bottom:1px solid var(--rule);background:var(--card)}
+.cover-inner{max-width:1180px;margin:0 auto;padding:56px 32px 40px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:32px;align-items:end}
+.cover h1{font-family:var(--mincho);font-size:38px;line-height:1.35;font-weight:600;margin:0 0 10px;letter-spacing:.02em}
+.cover .lede{margin:0;max-width:44em;color:var(--ink-soft)}
+.stamp{border:2px solid var(--rule-strong);border-radius:4px;padding:14px 18px;text-align:center;color:var(--ink-soft);font-size:12px;line-height:1.7;white-space:nowrap}
+.stamp b{display:block;font-family:var(--mincho);font-size:17px;color:var(--ink);letter-spacing:.08em}
+
+/* ---------- 目次 ---------- */
+.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:32px 0 40px;font-size:13.5px}
+.toc h2{font-family:var(--mincho);font-size:15px;margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--rule);font-weight:600}
+.toc ol{list-style:none;margin:0;padding:0;counter-reset:toc}
+.toc li{counter-increment:toc}
+.toc a{display:block;padding:5px 8px 5px 30px;color:var(--ink-soft);text-decoration:none;border-radius:4px;position:relative;line-height:1.5}
+.toc a::before{content:counter(toc,decimal-leading-zero);position:absolute;left:6px;font-family:var(--mono);font-size:11px;color:var(--rule-strong)}
+.toc a:hover{background:var(--shade);color:var(--ink)}
+.toc a.on{background:var(--ink);color:#fff}
+.toc a.on::before{color:rgba(255,255,255,.55)}
+
+/* ---------- 本文 ---------- */
+main{padding:32px 0 96px;min-width:0}
+section{margin:0 0 56px;scroll-margin-top:24px}
+h2{font-family:var(--mincho);font-size:26px;font-weight:600;margin:0 0 6px;letter-spacing:.02em}
+.sec-head{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:22px}
+.sec-num{font-family:var(--mono);font-size:13px;color:var(--ink-soft);flex:none}
+h3{font-family:var(--mincho);font-size:18px;font-weight:600;margin:32px 0 10px;padding-left:11px;border-left:4px solid var(--ink)}
+h4{font-size:14.5px;margin:22px 0 6px;color:var(--ink)}
+p{margin:0 0 14px;max-width:74ch}
+ul,ol{margin:0 0 14px;padding-left:1.5em;max-width:74ch}
+li{margin-bottom:5px}
+a{color:var(--link)}
+code{font-family:var(--mono);font-size:.88em;background:var(--shade);padding:2px 5px;border-radius:3px;word-break:break-all}
+pre{font-family:var(--mono);font-size:12.5px;line-height:1.7;background:#151922;color:#e6eaf2;padding:14px 16px;border-radius:6px;overflow:auto;margin:0 0 16px}
+pre code{background:none;color:inherit;padding:0}
+strong{font-weight:600}
+
+/* ---------- 表 ---------- */
+table{border-collapse:collapse;width:100%;margin:0 0 18px;font-size:13.5px;line-height:1.7;background:var(--card)}
+th,td{border:1px solid var(--rule);padding:8px 11px;text-align:left;vertical-align:top}
+th{background:var(--shade);font-weight:600;white-space:nowrap}
+td.id{font-family:var(--mono);font-size:12px;white-space:nowrap;color:var(--ink-soft)}
+tbody tr:hover{background:#fbfcfd}
+
+/* ---------- 危険度チップ ---------- */
+.chip{display:inline-block;font-size:12px;line-height:1.5;padding:1px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.chip.ok{color:var(--ok)}
+.chip.warn{color:var(--warn)}
+.chip.ng{color:var(--ng)}
+.chip.mute{color:var(--ink-soft)}
+
+/* ---------- 注意ボックス ---------- */
+.note{background:var(--card);border:1px solid var(--rule);border-left:5px solid var(--ink-soft);padding:14px 18px;margin:0 0 18px;max-width:74ch}
+.note.caution{border-left-color:var(--ng)}
+.note.tip{border-left-color:var(--ok)}
+.note p:last-child{margin-bottom:0}
+.note .t{font-family:var(--mincho);font-weight:600;display:block;margin-bottom:4px}
+
+/* ---------- 手順 ---------- */
+ol.steps{list-style:none;padding:0;counter-reset:st;max-width:74ch}
+ol.steps>li{counter-increment:st;position:relative;padding:0 0 14px 42px;margin:0}
+ol.steps>li::before{content:counter(st);position:absolute;left:0;top:1px;width:26px;height:26px;border:1px solid var(--ink);border-radius:50%;font-family:var(--mono);font-size:13px;display:flex;align-items:center;justify-content:center}
+ol.steps>li>b{display:block}
+
+/* ---------- 点数の帯 ---------- */
+.gauge{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin:0 0 8px;max-width:74ch}
+.gauge div{padding:9px 10px;font-size:12.5px;line-height:1.5;color:#fff;background:var(--ok)}
+.gauge div:nth-child(2){background:#4e8a3f}
+.gauge div:nth-child(3){background:var(--warn)}
+.gauge div:nth-child(4){background:#c2452c}
+.gauge div:nth-child(5){background:var(--ng)}
+.gauge b{display:block;font-family:var(--mono);font-size:13px}
+.gauge-cap{font-size:12.5px;color:var(--ink-soft);margin-bottom:22px}
+
+/* ---------- 画面図 ---------- */
+.screen{background:#151922;border-radius:8px;padding:16px;margin:0 0 18px;max-width:74ch;color:#e6eaf2;font-size:12.5px}
+.screen .tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid #2e3542;padding-bottom:9px;margin-bottom:11px}
+.screen .tabs span{padding:3px 9px;border-radius:4px;color:#96a1b2}
+.screen .tabs span.cur{background:#3da9fc;color:#08131e}
+.screen dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px}
+.screen dt{color:#3da9fc;font-family:var(--mono);font-size:11.5px;padding-top:2px}
+.screen dd{margin:0;color:#c3cbd8;line-height:1.7}
+
+/* ---------- FAQ ---------- */
+details{background:var(--card);border:1px solid var(--rule);border-radius:5px;padding:12px 16px;margin-bottom:10px;max-width:74ch}
+details[open]{border-color:var(--rule-strong)}
+summary{cursor:pointer;font-weight:600;list-style-position:outside}
+summary::marker{color:var(--rule-strong)}
+details p{margin:10px 0 0}
+
+footer{border-top:1px solid var(--rule);padding:22px 0 60px;color:var(--ink-soft);font-size:12.5px;max-width:74ch}
+
+/* ---------- 画面幅 ---------- */
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr;gap:0;padding:0 20px}
+  .cover-inner{grid-template-columns:1fr;padding:36px 20px 28px}
+  .cover h1{font-size:28px}
+  .stamp{justify-self:start}
+  .toc{position:static;max-height:none;padding:26px 0 0}
+  .gauge{grid-template-columns:1fr}
+  table{display:block;overflow-x:auto;white-space:normal}
+}
+
+/* ---------- 印刷 ---------- */
+@media print{
+  body{background:#fff;font-size:10.5pt;line-height:1.75}
+  .toc,.skip{display:none}
+  .wrap{display:block;max-width:none;padding:0}
+  .cover-inner{padding:0 0 20px}
+  section{page-break-inside:auto;margin-bottom:28px}
+  h2,h3{page-break-after:avoid}
+  table,pre,.note,.screen{page-break-inside:avoid}
+  pre,.screen{background:#fff;color:#000;border:1px solid #999}
+  .screen dt{color:#000}
+  .screen dd{color:#333}
+  .gauge div{color:#000;background:#fff !important;border:1px solid #999}
+  a{color:#000;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">本文へ移動</a>
+
+<header class="cover">
+  <div class="cover-inner">
+    <div>
+      <h1>Aegis セキュリティスイート<br>操作マニュアル</h1>
+      <p class="lede">ファイルの検査、フィッシングの判定、Windows の保護設定の点検を 1 つにまとめた Windows 向けデスクトップアプリの使い方をまとめています。はじめて使う方は「できること・できないこと」から順にお読みください。</p>
+    </div>
+    <div class="stamp">
+      <b>Aegis</b>
+      version 1.0.0<br>
+      WPF / .NET 8<br>
+      Windows 10・11
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <nav class="toc" aria-label="目次">
+    <h2>目次</h2>
+    <ol>
+      <li><a href="#about">できること・できないこと</a></li>
+      <li><a href="#setup">動作環境とビルド</a></li>
+      <li><a href="#ui">画面の見かた</a></li>
+      <li><a href="#scan">ファイル検査</a></li>
+      <li><a href="#rules">検出ルール一覧</a></li>
+      <li><a href="#monitor">リアルタイム監視</a></li>
+      <li><a href="#quarantine">隔離ボックス</a></li>
+      <li><a href="#phishing">フィッシング判定</a></li>
+      <li><a href="#system">システム診断</a></li>
+      <li><a href="#autorun">自動起動の確認</a></li>
+      <li><a href="#signature">ハッシュ定義の管理</a></li>
+      <li><a href="#test">動作テスト</a></li>
+      <li><a href="#files">保存先とログ</a></li>
+      <li><a href="#faq">困ったときは</a></li>
+      <li><a href="#glossary">用語集</a></li>
+    </ol>
+  </nav>
+
+  <main id="main">
+
+  <!-- 1 -->
+  <section id="about">
+    <div class="sec-head"><span class="sec-num">01</span><h2>できること・できないこと</h2></div>
+
+    <p>Aegis は、あやしいファイルとあやしい URL を見つけ、パソコンの守りが緩んでいないかを点検するためのアプリです。6 つのタブがそれぞれ独立した道具になっています。</p>
+
+    <table>
+      <thead><tr><th>タブ</th><th>役割</th><th>こんなときに</th></tr></thead>
+      <tbody>
+        <tr><td>ファイル検査</td><td>指定した場所のファイルを調べる</td><td>USB メモリを受け取った、心当たりのないファイルを見つけた</td></tr>
+        <tr><td>リアルタイム監視</td><td>新しく増えたファイルをその場で調べる</td><td>作業中ずっと見張らせておきたい</td></tr>
+        <tr><td>隔離ボックス</td><td>取り出したファイルを安全に保管する</td><td>消す前に一度よけておきたい、誤検出を戻したい</td></tr>
+        <tr><td>フィッシング判定</td><td>URL やメール本文の詐欺らしさを採点する</td><td>宅配の不在通知やカード会社を名乗るメールが届いた</td></tr>
+        <tr><td>システム診断</td><td>Windows の保護設定を点検する</td><td>守りが緩んでいないか定期的に確かめたい</td></tr>
+        <tr><td>自動起動の確認</td><td>起動時に動くプログラムを一覧にする</td><td>パソコンが重い、居座っているものがないか調べたい</td></tr>
+      </tbody>
+    </table>
+
+    <h3>できないこと</h3>
+    <div class="note caution">
+      <span class="t">常駐型ウイルス対策ソフトの代わりにはなりません</span>
+      <p>Aegis はファイルを「開く前・実行される前」に自動で止める仕組み（カーネルレベルの常時保護）を持っていません。Microsoft Defender などの常駐ソフトは有効にしたまま、その上で使う補助的な道具としてお考えください。システム診断タブは、まさにその常駐保護が効いているかを確認するための機能です。</p>
+    </div>
+    <ul>
+      <li>感染したファイルの<strong>修復・駆除</strong>は行いません。できるのは隔離と削除です。</li>
+      <li>検出は「あやしい特徴」からの推定です。<strong>正規のソフトが引っかかること（誤検出）もあります</strong>。いきなり削除せず、まず隔離してください。</li>
+      <li>ネットワークの通信内容やメールサーバーは見ません。判定はすべてこのパソコンの中だけで完結し、外部に何も送信しません。</li>
+    </ul>
+  </section>
+
+  <!-- 2 -->
+  <section id="setup">
+    <div class="sec-head"><span class="sec-num">02</span><h2>動作環境とビルド</h2></div>
+
+    <table>
+      <tbody>
+        <tr><th>OS</th><td>Windows 10（バージョン 1809 以降）/ Windows 11</td></tr>
+        <tr><th>フレームワーク</th><td>.NET 8（デスクトップランタイム）</td></tr>
+        <tr><th>開発環境</th><td>Visual Studio 2022 バージョン 17.8 以降 ＋「.NET デスクトップ開発」ワークロード</td></tr>
+        <tr><th>権限</th><td>通常は不要。HKLM の自動起動の解除、システム領域のファイル隔離には管理者権限が必要</td></tr>
+      </tbody>
+    </table>
+
+    <h3>ビルドの手順</h3>
+    <ol class="steps">
+      <li><b>ソリューションを開く</b>配布された <code>Aegis</code> フォルダー内の <code>Aegis.sln</code> をダブルクリックします。</li>
+      <li><b>パッケージを復元する</b>初回ビルド時に NuGet から <code>System.Management</code> が自動で取得されます。社内ネットワークなどで取得できない場合は、プロキシ設定を確認してください。</li>
+      <li><b>ビルドする</b>メニューの「ビルド」→「ソリューションのビルド」を実行します。</li>
+      <li><b>実行する</b>F5 キーで起動します。<code>bin\Release\net8.0-windows\Aegis.exe</code> を単体で配布することもできます。</li>
+    </ol>
+
+    <p>コマンドラインからビルドする場合は次のとおりです。</p>
+<pre><code>dotnet build Aegis.sln -c Release
+dotnet run --project Aegis/Aegis.csproj</code></pre>
+
+    <div class="note tip">
+      <span class="t">配布用に 1 ファイルへまとめる</span>
+      <p>.NET ランタイムが入っていないパソコンでも動かしたい場合は、次のコマンドで自己完結型の実行ファイルを作れます。</p>
+      <pre><code>dotnet publish Aegis/Aegis.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true</code></pre>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section id="ui">
+    <div class="sec-head"><span class="sec-num">03</span><h2>画面の見かた</h2></div>
+
+    <p>どのタブを開いていても、上端と下端には共通の情報が出ています。</p>
+
+    <div class="screen">
+      <div class="tabs">
+        <span class="cur">ファイル検査</span><span>リアルタイム監視</span><span>隔離ボックス</span><span>フィッシング判定</span><span>システム診断</span><span>自動起動の確認</span>
+      </div>
+      <dl>
+        <dt>上端右</dt><dd>「管理者として実行中」または「管理者として実行」ボタン。押すとアプリが権限を上げて起動しなおします。</dd>
+        <dt>下端左</dt><dd>いま行った操作の結果（検査件数、診断の内訳など）。</dd>
+        <dt>下端右</dt><dd>読み込み済みのハッシュ定義の件数とバージョン。</dd>
+      </dl>
+    </div>
+
+    <h3>危険度の表し方</h3>
+    <p>検出結果は 5 段階で色分けされます。同じ色分けは HTML レポートでも使われます。</p>
+
+    <table>
+      <thead><tr><th>表示</th><th>意味</th><th>おすすめの対応</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip ng">危険度：最大</span></td><td>攻撃の手口そのものが見つかった状態</td><td>ただちに隔離。ファイルを開かない</td></tr>
+        <tr><td><span class="chip ng">危険度：高</span></td><td>正規のソフトではまず見られない特徴</td><td>隔離して、入手元を確認する</td></tr>
+        <tr><td><span class="chip warn">危険度：中</span></td><td>使い方によっては正常だが、油断できない</td><td>心当たりがあるか確認する</td></tr>
+        <tr><td><span class="chip warn">危険度：低</span></td><td>単独では判断できない特徴</td><td>他の検出と合わせて考える</td></tr>
+        <tr><td><span class="chip mute">参考情報</span></td><td>覚えておくと役に立つ事実</td><td>対応は不要。既定では非表示</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 4 -->
+  <section id="scan">
+    <div class="sec-head"><span class="sec-num">04</span><h2>ファイル検査</h2></div>
+
+    <h3>4 つの検査ボタン</h3>
+    <table>
+      <thead><tr><th>ボタン</th><th>調べる範囲</th><th>目安の時間</th></tr></thead>
+      <tbody>
+        <tr><td>クイックスキャン</td><td>デスクトップ、ダウンロード、一時フォルダ、スタートアップ、最近使った項目</td><td>数十秒〜数分</td></tr>
+        <tr><td>フォルダを選んで検査</td><td>指定した 1 つのフォルダ</td><td>中身しだい</td></tr>
+        <tr><td>ファイルを選んで検査</td><td>指定したファイル（複数選択可）</td><td>数秒</td></tr>
+        <tr><td>ドライブ全体を検査</td><td>接続中の固定ドライブとリムーバブルドライブ</td><td>数十分〜数時間</td></tr>
+      </tbody>
+    </table>
+    <p>検査中は「中止」ボタンがいつでも押せます。中止しても、そこまでの検出結果は一覧に残ります。</p>
+
+    <h3>検査オプション</h3>
+    <table>
+      <thead><tr><th>項目</th><th>内容</th><th>外すと</th></tr></thead>
+      <tbody>
+        <tr><td>ヒューリスティック検査</td><td>未知のファイルの「あやしい形」を見る</td><td>ハッシュ定義に一致するものしか見つかりません</td></tr>
+        <tr><td>詳細検査（中身も読む）</td><td>スクリプトの中身、マクロの有無、エントロピーを調べる</td><td>速くなりますが、R006・R007・R009・R010 が働きません</td></tr>
+        <tr><td>サブフォルダを含む</td><td>下の階層まで再帰的に調べる</td><td>指定フォルダの直下だけを見ます</td></tr>
+        <tr><td>参考情報レベルも表示</td><td>危険度「参考情報」も一覧に出す</td><td>（既定）件数が減り、重要なものが見やすくなります</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2 段構えの判定</h3>
+    <p>1 つのファイルに対して、次の 2 つの検査が順に走ります。片方だけで判断せず、両方の結果を並べて表示します。</p>
+    <ol>
+      <li><b>ハッシュ照合（ルール ID: SIG）</b> — ファイルの SHA-256 を計算し、定義ファイルに登録済みのものと突き合わせます。一致すれば確実です。ただし 1 バイトでも違えば一致しません。</li>
+      <li><b>ヒューリスティック検査（R001〜R015）</b> — 定義にないファイルでも、名前・構造・中身の特徴から怪しさを判断します。未知のものに強い代わりに、誤検出が起こりえます。</li>
+    </ol>
+
+    <h3>見つかったあとの操作</h3>
+    <table>
+      <thead><tr><th>ボタン</th><th>動作</th></tr></thead>
+      <tbody>
+        <tr><td>選択したファイルを隔離</td><td>隔離ボックスへ移します。元の場所からは消えますが、いつでも戻せます</td></tr>
+        <tr><td>保存場所を開く</td><td>エクスプローラーでそのファイルを選択した状態で開きます</td></tr>
+        <tr><td>ハッシュを定義に追加</td><td>そのファイルの SHA-256 をユーザー定義に登録し、次回から SIG ルールで即座に検出します</td></tr>
+        <tr><td>CSV で保存</td><td>検出一覧を Excel などで開ける形式で書き出します</td></tr>
+        <tr><td>HTML レポート</td><td>検出一覧とシステム診断結果をまとめた報告書を作ります</td></tr>
+        <tr><td>一覧を消去</td><td>画面の表示だけを消します。ファイルには何もしません</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      <span class="t">迷ったら、まず隔離</span>
+      <p>削除は取り消せませんが、隔離は取り消せます。判断に迷うファイルは隔離しておき、しばらく使ってみて困らなければ完全削除、必要だとわかったら復元、という順序が安全です。</p>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section id="rules">
+    <div class="sec-head"><span class="sec-num">05</span><h2>検出ルール一覧</h2></div>
+
+    <p>検出結果の「検出ルール」欄に出る ID の意味です。何が見つかったのかを理解してから対処を決めてください。</p>
+
+    <table>
+      <thead><tr><th>ID</th><th>ルール名</th><th>何を見ているか</th><th>危険度</th></tr></thead>
+      <tbody>
+        <tr><td class="id">SIG</td><td>定義ファイル一致</td><td>SHA-256 が登録済みの脅威と完全一致した</td><td><span class="chip mute">定義による</span></td></tr>
+        <tr><td class="id">R001</td><td>ファイル名の表示偽装</td><td>文字の並びを逆転させる制御文字（RLO）で拡張子を隠している</td><td><span class="chip ng">最大</span></td></tr>
+        <tr><td class="id">R002</td><td>二重拡張子</td><td><code>請求書.pdf.exe</code> のように、文書に見せかけた実行ファイル</td><td><span class="chip ng">高</span></td></tr>
+        <tr><td class="id">R003</td><td>拡張子の偽装</td><td>拡張子は画像や文書なのに、中身が Windows の実行ファイル形式</td><td><span class="chip ng">高</span></td></tr>
+        <tr><td class="id">R004</td><td>危険度の高い形式</td><td><code>.scr .pif .hta .vbe .jse .wsf .cpl .com</code> など、正規の用途が少ない拡張子</td><td><span class="chip warn">低</span></td></tr>
+        <tr><td class="id">R005</td><td>一時領域の実行ファイル</td><td>一時フォルダやダウンロードフォルダに置かれた実行ファイル</td><td><span class="chip warn">低</span></td></tr>
+        <tr><td class="id">R006</td><td>スクリプトの不審な処理</td><td>難読化された命令の実行、外部からのダウンロード実行、復元ポイントの削除、ウイルス対策の無効化、自動起動への登録、資格情報の窃取など</td><td><span class="chip ng">中〜最大</span></td></tr>
+        <tr><td class="id">R007</td><td>難読化の疑い</td><td>1 行が 3,000 文字を超える、読ませないための書き方</td><td><span class="chip warn">中</span></td></tr>
+        <tr><td class="id">R008</td><td>コマンドを実行するショートカット</td><td><code>.lnk</code> が PowerShell やコマンドプロンプトを呼び出す内容になっている</td><td><span class="chip ng">高</span></td></tr>
+        <tr><td class="id">R009</td><td>マクロ入りの文書</td><td>Office 文書に VBA マクロが埋め込まれている</td><td><span class="chip warn">中</span></td></tr>
+        <tr><td class="id">R010</td><td>圧縮・難読化された実行ファイル</td><td>データの乱雑さ（エントロピー）が 7.5 以上で、解析を避ける加工の跡がある</td><td><span class="chip warn">低</span></td></tr>
+        <tr><td class="id">R011</td><td>デジタル署名なし</td><td>発行元の証明書が付いていない実行ファイル</td><td><span class="chip mute">参考</span></td></tr>
+        <tr><td class="id">R012</td><td>インターネットから取得</td><td>ダウンロード由来を示す印（Zone.Identifier）が付いている</td><td><span class="chip mute">参考</span></td></tr>
+        <tr><td class="id">R013</td><td>隠し属性の実行ファイル</td><td>実行ファイルが隠しファイルとして置かれている</td><td><span class="chip warn">中</span></td></tr>
+        <tr><td class="id">R014</td><td>システムプロセス名の詐称</td><td><code>svchost</code> <code>lsass</code> などの名前なのに、Windows フォルダーの外にある</td><td><span class="chip ng">最大</span></td></tr>
+        <tr><td class="id">R015</td><td>拡張子を隠すファイル名</td><td>拡張子の前に空白を大量に入れ、本当の形式を画面外へ押し出している</td><td><span class="chip warn">中</span></td></tr>
+      </tbody>
+    </table>
+
+    <h3>誤検出が起こりやすいもの</h3>
+    <p>次のようなファイルは、正規のものでも検出されることがあります。落ち着いて入手元を確かめてください。</p>
+    <ul>
+      <li><strong>R011（署名なし）</strong> — 個人が作ったツールやオープンソースソフトには署名がないことが普通にあります。</li>
+      <li><strong>R010（高エントロピー）</strong> — インストーラーや圧縮された実行ファイルは、正規のものでもエントロピーが高くなります。</li>
+      <li><strong>R009（マクロ）</strong> — 社内で配られる集計用の Excel にはマクロが入っていることがあります。差出人が確かなら問題ありません。</li>
+      <li><strong>R005（一時領域）</strong> — インストール中のソフトが一時的に置いた正規ファイルの可能性があります。</li>
+    </ul>
+    <p>逆に、<strong>R001・R002・R003・R014 が出た場合は、正規のソフトである可能性はほとんどありません</strong>。これらは偽装そのものが目的の作りだからです。</p>
+  </section>
+
+  <!-- 6 -->
+  <section id="monitor">
+    <div class="sec-head"><span class="sec-num">06</span><h2>リアルタイム監視</h2></div>
+
+    <p>指定したフォルダーを見張り、新しく現れたファイルをその場で検査します。ダウンロード直後や、USB メモリからコピーした直後の確認に向いています。</p>
+
+    <ol class="steps">
+      <li><b>フォルダーを決める</b>起動時はダウンロード・デスクトップ・一時フォルダーが入っています。「監視フォルダを追加」で増やし、「選択したフォルダを外す」で減らせます。</li>
+      <li><b>自動隔離を決める</b>危険度が高い検出を自動で隔離するかを選びます。<strong>既定はオフ</strong>です。誤検出で必要なファイルが消えるのを避けたい場合はオフのままにしてください。</li>
+      <li><b>監視を開始する</b>開始後は一覧に検出が新しい順で積まれます。危険度が高いものは、自動隔離がオフの場合に警告ダイアログでも知らせます。</li>
+    </ol>
+
+    <div class="note">
+      <span class="t">監視の限界</span>
+      <p>監視はファイルが置かれた「あと」に働きます。書き込み中のファイルは完了を待ってから検査するため、数秒の遅れがあります。また、ファイルが実行されるのを止めることはできません。あくまで気づくための仕組みです。</p>
+    </div>
+
+    <p>アプリを閉じると監視も終了します。常に見張らせたい場合は、Aegis を起動したままにしておいてください。</p>
+  </section>
+
+  <!-- 7 -->
+  <section id="quarantine">
+    <div class="sec-head"><span class="sec-num">07</span><h2>隔離ボックス</h2></div>
+
+    <p>隔離したファイルは <code>%LOCALAPPDATA%\Aegis\Quarantine</code> に移されます。保管時に全バイトを変換しているため、<strong>隔離中のファイルはダブルクリックしても実行されません</strong>。拡張子も <code>.qbin</code> に変わります。</p>
+
+    <table>
+      <thead><tr><th>ボタン</th><th>動作</th><th>取り消し</th></tr></thead>
+      <tbody>
+        <tr><td>一覧を更新</td><td>保管中のファイルを読み直します</td><td>—</td></tr>
+        <tr><td>元に戻す</td><td>もとのフォルダーへ、もとの形式で書き戻します</td><td>再度隔離すれば戻せます</td></tr>
+        <tr><td>別の場所に取り出す</td><td>保存先を選んで取り出します。調査用のコピーが欲しいときに</td><td>同上</td></tr>
+        <tr><td>完全に削除</td><td>保管データを消します</td><td><strong>できません</strong></td></tr>
+        <tr><td>隔離フォルダを開く</td><td>保管場所をエクスプローラーで開きます</td><td>—</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note caution">
+      <span class="t">復元は確認してから</span>
+      <p>「元に戻す」は、検出が誤りだったと確認できている場合にだけ使ってください。元の場所に同じ名前のファイルがある場合は、名前の末尾に <code>_restored</code> を付けて保存し、既存のファイルは上書きしません。</p>
+    </div>
+
+    <p>隔離に失敗する主な原因は、そのファイルが実行中であることと、権限が足りないことです。前者はいったん再起動してから、後者は「管理者として実行」してからお試しください。</p>
+  </section>
+
+  <!-- 8 -->
+  <section id="phishing">
+    <div class="sec-head"><span class="sec-num">08</span><h2>フィッシング判定</h2></div>
+
+    <p>入力欄に URL かメール本文を貼り付けて「判定する」を押します。1 行の URL だけならその URL を、複数行の文章なら文面と、その中に含まれるすべての URL を、それぞれ採点します。</p>
+
+    <h3>点数の見かた</h3>
+    <div class="gauge">
+      <div><b>0–9</b>目立った危険信号なし</div>
+      <div><b>10–24</b>軽微な注意点あり</div>
+      <div><b>25–49</b>要注意</div>
+      <div><b>50–74</b>危険。開かない</div>
+      <div><b>75–100</b>フィッシングの疑いが濃厚</div>
+    </div>
+    <p class="gauge-cap">左の「判定対象」で行を選ぶと、右側にその点数の内訳（何点がどの理由で加算されたか）が出ます。</p>
+
+    <h3>URL で見ているもの</h3>
+    <table>
+      <thead><tr><th>着眼点</th><th>判定内容</th><th>加点</th></tr></thead>
+      <tbody>
+        <tr><td>ブランドのなりすまし</td><td>有名サービス名を含むのに、公式ドメインではない</td><td>40</td></tr>
+        <tr><td>そっくりドメイン</td><td>正規ドメインと 1〜2 文字しか違わない（<code>rakuteen.co.jp</code> など）</td><td>40</td></tr>
+        <tr><td>@ による表示偽装</td><td><code>@</code> の前を本物のドメインに見せかけている</td><td>35</td></tr>
+        <tr><td>文字体系の混在</td><td>ラテン文字にキリル文字などを混ぜて見た目を似せている</td><td>35</td></tr>
+        <tr><td>Punycode ドメイン</td><td><code>xn--</code> で始まる、見た目が似た別文字のドメイン</td><td>30</td></tr>
+        <tr><td>IP アドレス直指定</td><td>ドメイン名ではなく数字でホストを指定している</td><td>30</td></tr>
+        <tr><td>ファイルの直接ダウンロード</td><td>リンク先が <code>.exe</code> や <code>.zip</code> などのファイル本体</td><td>22</td></tr>
+        <tr><td>ドメイン名の水増し</td><td>正規ドメインを部分文字列として含む長いホスト名</td><td>20</td></tr>
+        <tr><td>注意が必要な TLD</td><td><code>.zip .top .xyz .click .tk</code> など詐欺での利用率が高い末尾</td><td>18</td></tr>
+        <tr><td>暗号化なし</td><td><code>https</code> ではなく <code>http</code> で始まる</td><td>15</td></tr>
+        <tr><td>非標準ポート／短縮 URL／ログイン誘導ワード／サブドメインの深さ／ハイフンの多さ／URL の長さ</td><td>単独では決定的でないが、重なると疑わしくなる特徴</td><td>5〜12</td></tr>
+      </tbody>
+    </table>
+
+    <h3>メール本文で見ているもの</h3>
+    <ul>
+      <li>カード番号・暗証番号・ワンタイムパスワード・マイナンバーの要求（＋25）</li>
+      <li>アカウントの停止・制限・凍結をちらつかせる脅し（＋20）</li>
+      <li>リンクの表示名と実際のあて先が違う HTML リンク（＋35）</li>
+      <li>「24 時間以内」「至急」など期限を切った催促（＋15）</li>
+      <li>本人確認・再登録の要求、未払いや滞納の主張、宅配の不在通知、当選や還付金の知らせ（各＋15）</li>
+      <li>契約者名ではなく「お客様各位」のような一般的な宛名（＋8）</li>
+    </ul>
+
+    <div class="note caution">
+      <span class="t">点数が低くても安全とは限りません</span>
+      <p>この判定は機械的な推定です。正規のメールが高く出ることも、巧妙な偽メールが低く出ることもあります。最後は次の 3 点で判断してください。</p>
+      <ul>
+        <li>そのメールを自分が待っていたか</li>
+        <li>同じ用件を、メールのリンクではなく公式アプリやブックマークから確認できるか</li>
+        <li>パスワードやカード番号を、メール経由で入力するよう求められていないか</li>
+      </ul>
+    </div>
+
+    <p>すでに情報を入力してしまった場合は、そのサービスのパスワードをただちに変更し、カードや口座に関わるものならカード会社・銀行へ連絡してください。</p>
+  </section>
+
+  <!-- 9 -->
+  <section id="system">
+    <div class="sec-head"><span class="sec-num">09</span><h2>システム診断</h2></div>
+
+    <p>「診断を実行」を押すと、Windows の保護設定を読み取って点検します。<strong>設定の書き換えは一切行いません</strong>。結果は危険・注意・不明・良好の順に並び、行を選ぶと右側に推奨される対処が出ます。</p>
+
+    <table>
+      <thead><tr><th>分類</th><th>点検項目</th><th>望ましい状態</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="3">ウイルス対策</td><td>Defender リアルタイム保護</td><td>有効（他社製ソフト使用時はそちらが有効）</td></tr>
+        <tr><td>定義ファイルの鮮度</td><td>3 日以内</td></tr>
+        <tr><td>登録されているウイルス対策製品</td><td>1 つ以上が有効かつ最新</td></tr>
+        <tr><td>ファイアウォール</td><td>ドメイン／プライベート／パブリックの 3 プロファイル</td><td>すべて有効</td></tr>
+        <tr><td rowspan="2">フィッシング対策</td><td>SmartScreen</td><td>有効</td></tr>
+        <tr><td>拡張子の表示</td><td>表示（偽装を見破るため）</td></tr>
+        <tr><td rowspan="5">システム保護</td><td>ユーザーアカウント制御（UAC）</td><td>有効かつ確認画面あり</td></tr>
+        <tr><td>Windows Update の最終適用</td><td>35 日以内</td></tr>
+        <tr><td>PowerShell 実行ポリシー</td><td>RemoteSigned 以上（Bypass・Unrestricted は注意）</td></tr>
+        <tr><td>自動再生（USB メモリ）</td><td>オフ</td></tr>
+        <tr><td>OS バージョン</td><td>サポート中のもの</td></tr>
+        <tr><td rowspan="3">ネットワーク</td><td>hosts ファイルの改ざん</td><td>身に覚えのない行がない</td></tr>
+        <tr><td>リモートデスクトップ</td><td>使わないなら無効</td></tr>
+        <tr><td>SMBv1</td><td>無効</td></tr>
+      </tbody>
+    </table>
+
+    <p>「Windows セキュリティを開く」ボタンから、対処のための設定画面へ直接移動できます。診断結果は「HTML レポート」で報告書として保存できます。</p>
+
+    <div class="note">
+      <span class="t">「不明」と出る項目について</span>
+      <p>Defender の状態など一部の項目は、読み取りに管理者権限が必要です。画面右上の「管理者として実行」で起動しなおすと取得できる場合があります。企業内で管理されたパソコンでは、グループポリシーによって読み取れないこともあります。</p>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section id="autorun">
+    <div class="sec-head"><span class="sec-num">10</span><h2>自動起動の確認</h2></div>
+
+    <p>Windows の起動時に自動で動くプログラムを一覧にします。マルウェアは電源を切っても居座るために、ここへ自分を登録することがよくあります。</p>
+
+    <h4>調べる場所</h4>
+    <ul>
+      <li>レジストリの <code>Run</code> / <code>RunOnce</code>（現在のユーザー分・コンピューター全体分・32 ビット互換分）</li>
+      <li>スタートアップフォルダー（個人用・全ユーザー用）</li>
+    </ul>
+
+    <h4>「要確認」と判定される特徴</h4>
+    <table>
+      <thead><tr><th>所見</th><th>なぜ疑わしいか</th></tr></thead>
+      <tbody>
+        <tr><td>一時フォルダから起動しています</td><td>正規のソフトは一時フォルダーに常駐しません</td></tr>
+        <tr><td>難読化されたコマンドが含まれています</td><td>読ませたくない処理を隠している</td></tr>
+        <tr><td>スクリプト実行系のコマンドを使っています</td><td>PowerShell や mshta などを経由して本体を隠している</td></tr>
+        <tr><td>画面に表示せず起動する設定です</td><td>気づかれないように動く意図がある</td></tr>
+        <tr><td>AppData 配下から起動しています</td><td>権限が要らない場所で、マルウェアが好んで使う</td></tr>
+        <tr><td>実体のファイルが見つかりません</td><td>アンインストール後の残骸か、隠されている</td></tr>
+      </tbody>
+    </table>
+
+    <h4>操作</h4>
+    <p>行を選んで「選択項目を検査」を押すと、そのプログラム本体をファイル検査と同じルールで調べます。不要と判断したら「自動起動から外す」で登録を解除できます。<strong>プログラム本体は削除されません</strong>ので、必要になれば手動で起動できます。</p>
+
+    <div class="note">
+      <span class="t">名前で調べてから消す</span>
+      <p>グラフィックドライバーやクラウドストレージの常駐など、正規のソフトも数多く登録されています。見覚えのない名前は、削除する前にその名前で検索して素性を確かめてください。コンピューター全体（HKLM）の項目を解除するには管理者権限が必要です。</p>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section id="signature">
+    <div class="sec-head"><span class="sec-num">11</span><h2>ハッシュ定義の管理</h2></div>
+
+    <p>Aegis のハッシュ定義は 2 つに分かれています。読み込み結果の件数は、画面下端の右側に表示されます。</p>
+
+    <table>
+      <thead><tr><th>種類</th><th>場所</th><th>形式</th></tr></thead>
+      <tbody>
+        <tr><td>同梱の定義</td><td><code>Aegis\Resources\signatures.json</code></td><td>JSON</td></tr>
+        <tr><td>ユーザー定義</td><td><code>%LOCALAPPDATA%\Aegis\user-signatures.txt</code></td><td>1 行 1 件のテキスト</td></tr>
+      </tbody>
+    </table>
+
+    <h3>ユーザー定義の書き方</h3>
+    <p><code>#</code> で始まる行はコメントとして読み飛ばされます。レベルは <code>Low</code> <code>Medium</code> <code>High</code> <code>Critical</code> のいずれかです。</p>
+<pre><code># Aegis ユーザー定義ハッシュ
+# 形式: &lt;sha256&gt;,&lt;名前&gt;,&lt;Low|Medium|High|Critical&gt;
+275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f,EICAR-Test-File,Medium</code></pre>
+
+    <p>検査結果の画面で行を選び「ハッシュを定義に追加」を押すと、このファイルに自動で追記されます。手で編集した場合は、アプリを起動しなおすと読み込まれます。</p>
+
+    <div class="note">
+      <span class="t">ハッシュ定義の性質</span>
+      <p>SHA-256 はファイルが 1 バイトでも違えば別の値になります。つまりハッシュ定義は「まったく同じファイル」しか見つけられません。少し書き換えられた亜種を捕まえるのはヒューリスティック検査の役目です。両方を有効にしておいてください。</p>
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section id="test">
+    <div class="sec-head"><span class="sec-num">12</span><h2>動作テスト</h2></div>
+
+    <p>検出が正しく働くかは、<strong>EICAR テストファイル</strong>で確かめられます。これはウイルス対策ソフトの動作確認のために業界団体が定めた無害なテキストファイルで、実際の被害を起こす機能は持っていません。</p>
+
+    <ol class="steps">
+      <li><b>テストファイルを用意する</b>EICAR の公式サイト（eicar.org）から <code>eicar.com</code> を入手し、任意のフォルダーに置きます。</li>
+      <li><b>そのフォルダーを検査する</b>「フォルダを選んで検査」で指定します。</li>
+      <li><b>検出を確認する</b>ルール <code>SIG</code>、危険度「中」、名前「EICAR-Test-File」として一覧に出れば正常です。</li>
+    </ol>
+
+    <div class="note tip">
+      <span class="t">常駐ソフトが先に反応します</span>
+      <p>Microsoft Defender などが有効な場合、ダウンロードや保存の時点でそちらが先に削除します。これは常駐保護が正しく働いている証拠です。Aegis のテストを行うときは、Defender の除外設定を一時的に加えるか、テストが終わったら設定を必ず元に戻してください。</p>
+    </div>
+
+    <p>フィッシング判定の動作は、テスト用の文字列で確かめられます。たとえば <code>http://amazon.co.jp.secure-login.xyz/verify</code> のような URL を入力すると、ブランドのなりすまし・注意が必要な TLD・ログイン誘導ワード・暗号化なしが同時に加点され、高い点数になります。</p>
+  </section>
+
+  <!-- 13 -->
+  <section id="files">
+    <div class="sec-head"><span class="sec-num">13</span><h2>保存先とログ</h2></div>
+
+    <p>Aegis が作るファイルはすべて次の場所にまとまっています。アプリを削除するときは、このフォルダーごと消せば元の状態に戻ります。</p>
+
+    <table>
+      <thead><tr><th>場所</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td><code>%LOCALAPPDATA%\Aegis\</code></td><td>データフォルダー全体</td></tr>
+        <tr><td><code>%LOCALAPPDATA%\Aegis\Quarantine\</code></td><td>隔離したファイル（<code>.qbin</code>）と、その情報（<code>.json</code>）</td></tr>
+        <tr><td><code>%LOCALAPPDATA%\Aegis\user-signatures.txt</code></td><td>ユーザーが追加したハッシュ定義</td></tr>
+        <tr><td><code>%LOCALAPPDATA%\Aegis\aegis.log</code></td><td>動作ログ。うまく動かないときの手がかり</td></tr>
+      </tbody>
+    </table>
+
+    <p>エクスプローラーのアドレス欄に <code>%LOCALAPPDATA%\Aegis</code> と入力すれば直接開けます。隔離ボックスの「隔離フォルダを開く」からも移動できます。</p>
+
+    <div class="note caution">
+      <span class="t">隔離フォルダーを直接触らないでください</span>
+      <p><code>.qbin</code> と <code>.json</code> は対になっています。片方だけを消すと一覧に不整合が出ます。削除や復元は必ずアプリの画面から行ってください。</p>
+    </div>
+  </section>
+
+  <!-- 14 -->
+  <section id="faq">
+    <div class="sec-head"><span class="sec-num">14</span><h2>困ったときは</h2></div>
+
+    <details>
+      <summary>ビルド時に System.Management が見つからないと出る</summary>
+      <p>NuGet パッケージの復元に失敗しています。Visual Studio のソリューションエクスプローラーでソリューションを右クリックし、「NuGet パッケージの復元」を実行してください。オフライン環境の場合は、あらかじめパッケージをローカルフィードに用意する必要があります。</p>
+    </details>
+
+    <details>
+      <summary>システム診断で多くの項目が「不明」になる</summary>
+      <p>読み取りに管理者権限が必要な項目です。画面右上の「管理者として実行」を押して起動しなおしてください。それでも取得できない場合は、企業のグループポリシーで制限されている可能性があります。</p>
+    </details>
+
+    <details>
+      <summary>ファイルを隔離できない</summary>
+      <p>原因は 2 つあります。1 つはそのファイルが実行中またはほかのアプリに開かれていること。タスクマネージャーで該当プロセスを終了するか、Windows を再起動してからお試しください。もう 1 つは権限不足で、Program Files などシステム領域のファイルは管理者権限が必要です。</p>
+    </details>
+
+    <details>
+      <summary>ドライブ全体の検査が終わらない</summary>
+      <p>ファイル数によっては数時間かかります。急ぐ場合は「中止」を押してください。そこまでの結果は残ります。日常的にはクイックスキャンで十分で、全体の検査は月に 1 回程度を目安にお考えください。</p>
+    </details>
+
+    <details>
+      <summary>正規のソフトが検出されてしまう</summary>
+      <p>R010（高エントロピー）や R011（署名なし）は、正規のソフトでも出ることがあります。入手元が信頼できるなら無視して構いません。検出そのものを減らしたい場合は「参考情報レベルも表示」のチェックを外してください。</p>
+    </details>
+
+    <details>
+      <summary>リアルタイム監視が反応しない</summary>
+      <p>大量のファイルが一度に作られると、Windows 側の通知が取りこぼされることがあります。ネットワークドライブや仮想ドライブも監視できない場合があります。監視対象は、ダウンロードやデスクトップなど、ファイルが増える場所に絞るのが確実です。</p>
+    </details>
+
+    <details>
+      <summary>アプリ自体が起動しない</summary>
+      <p>.NET 8 デスクトップランタイムが入っていない可能性があります。Microsoft のダウンロードページから「.NET Desktop Runtime 8」を導入してください。それでも起動しない場合は <code>%LOCALAPPDATA%\Aegis\aegis.log</code> の末尾を確認すると原因の手がかりが得られます。</p>
+    </details>
+
+    <details>
+      <summary>本当に感染したかもしれないときは</summary>
+      <p>Aegis での作業を続けるより先に、ネットワークから切り離し（LAN ケーブルを抜く、Wi-Fi をオフにする）、Microsoft Defender のオフラインスキャンを実行してください。金銭やアカウントに関わる情報を入力していた場合は、別の安全な端末からパスワードを変更し、関係する事業者へ連絡してください。</p>
+    </details>
+  </section>
+
+  <!-- 15 -->
+  <section id="glossary">
+    <div class="sec-head"><span class="sec-num">15</span><h2>用語集</h2></div>
+
+    <table>
+      <thead><tr><th>用語</th><th>意味</th></tr></thead>
+      <tbody>
+        <tr><td>SHA-256</td><td>ファイルの中身から計算する 64 桁の値。中身が同じなら必ず同じ値になり、1 バイトでも違えば別の値になる</td></tr>
+        <tr><td>ハッシュ照合</td><td>SHA-256 を既知の脅威のリストと突き合わせる検査方法。確実だが、同一のファイルしか見つけられない</td></tr>
+        <tr><td>ヒューリスティック検査</td><td>ファイルの形や中身の特徴から怪しさを推定する検査方法。未知のものに強いが、誤検出が起こりうる</td></tr>
+        <tr><td>エントロピー</td><td>データの乱雑さを 0〜8 で表した数値。圧縮や暗号化を施すと 8 に近づく</td></tr>
+        <tr><td>PE 形式</td><td>Windows の実行ファイルの構造。先頭が <code>MZ</code> の 2 文字で始まる</td></tr>
+        <tr><td>RLO</td><td>文字の並びを右から左へ反転させる制御文字。<code>gpj.exe</code> を <code>exe.jpg</code> のように見せかけるのに悪用される</td></tr>
+        <tr><td>Punycode</td><td>日本語などの文字を含むドメインを英数字で表す方式。<code>xn--</code> で始まる。見た目が似た文字での偽装に使われる</td></tr>
+        <tr><td>タイポスクワッティング</td><td>正規ドメインと 1〜2 文字違いのドメインを取得し、打ち間違いや見間違いを狙う手口</td></tr>
+        <tr><td>TLD</td><td>ドメインの末尾部分（<code>.com</code> <code>.jp</code> など）。登録が容易な一部の TLD は詐欺に多用される</td></tr>
+        <tr><td>Mark of the Web</td><td>インターネットから取得したファイルに Windows が付ける印。Office などはこの印を見て保護ビューを働かせる</td></tr>
+        <tr><td>デジタル署名</td><td>ソフトの発行元を証明する電子的な署名。署名があれば、配布後に改ざんされていないことが確かめられる</td></tr>
+        <tr><td>シャドウコピー</td><td>Windows がファイルの過去の状態を保持する仕組み。ランサムウェアは復旧を妨げるためにこれを削除しようとする</td></tr>
+        <tr><td>SMBv1</td><td>古いファイル共有の通信方式。深刻な脆弱性があり、ランサムウェアの拡散に悪用された経緯がある</td></tr>
+      </tbody>
+    </table>
+
+    <footer>
+      <p>Aegis セキュリティスイート 操作マニュアル ／ version 1.0.0<br>
+      本アプリは補助的な検査ツールです。常駐型ウイルス対策ソフトを有効にしたうえでご利用ください。</p>
+    </footer>
+  </section>
+
+  </main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var map = {};
+  var targets = [];
+
+  links.forEach(function (a) {
+    var el = document.querySelector(a.getAttribute('href'));
+    if (!el) return;
+    map[el.id] = a;
+    targets.push(el);
+  });
+
+  if (!('IntersectionObserver' in window) || targets.length === 0) return;
+
+  var visible = {};
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+
+    var current = null;
+    for (var i = 0; i < targets.length; i++) {
+      if (visible[targets[i].id]) { current = targets[i].id; break; }
+    }
+    if (!current) return;
+
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[current]) map[current].classList.add('on');
+  }, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
+
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>
+</body>
+</html>

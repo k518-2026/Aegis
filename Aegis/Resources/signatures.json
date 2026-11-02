@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-08-31",
+  "note": "SHA-256 のハッシュ定義。1行1エントリで追加できます。level は Low / Medium / High / Critical。",
+  "entries": [
+    {
+      "sha256": "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f",
+      "name": "EICAR-Test-File",
+      "level": "Medium",
+      "note": "業界標準のウイルス対策テスト用ファイル。実害はありませんが、検出動作の確認に使えます。"
+    }
+  ]
+}

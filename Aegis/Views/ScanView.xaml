@@ -1,0 +1,104 @@
+<UserControl x:Class="Aegis.Views.ScanView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent">
+    <Grid Margin="0,12,0,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- 操作 -->
+        <Border Grid.Row="0" Style="{StaticResource Card}">
+            <StackPanel>
+                <WrapPanel>
+                    <Button x:Name="QuickScanButton" Style="{StaticResource PrimaryButton}"
+                            Content="クイックスキャン" Click="QuickScan_Click" />
+                    <Button x:Name="FolderScanButton" Content="フォルダを選んで検査" Click="FolderScan_Click" />
+                    <Button x:Name="FileScanButton" Content="ファイルを選んで検査" Click="FileScan_Click" />
+                    <Button x:Name="DriveScanButton" Content="ドライブ全体を検査" Click="DriveScan_Click" />
+                    <Button x:Name="CancelButton" Content="中止" IsEnabled="False" Click="Cancel_Click" />
+                </WrapPanel>
+
+                <WrapPanel Margin="0,10,0,0">
+                    <CheckBox x:Name="HeuristicCheck" Content="ヒューリスティック検査" IsChecked="True" />
+                    <CheckBox x:Name="DeepCheck" Content="詳細検査（中身も読む）" IsChecked="True" />
+                    <CheckBox x:Name="SubFolderCheck" Content="サブフォルダを含む" IsChecked="True" />
+                    <CheckBox x:Name="InfoCheck" Content="参考情報レベルも表示" />
+                </WrapPanel>
+
+                <TextBlock Style="{StaticResource Caption}" Margin="0,8,0,0"
+                           Text="クイックスキャンはデスクトップ・ダウンロード・一時フォルダ・スタートアップを検査します。" />
+            </StackPanel>
+        </Border>
+
+        <!-- 進捗 -->
+        <Grid Grid.Row="1" Margin="0,0,0,10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ProgressBar x:Name="ScanBar" Grid.Row="0" Value="0" Maximum="100" />
+            <TextBlock x:Name="ProgressText" Grid.Row="1" Style="{StaticResource Caption}"
+                       Margin="0,6,0,0" Text="待機中" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+        </Grid>
+
+        <!-- 結果 -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="12" />
+                <ColumnDefinition Width="360" />
+            </Grid.ColumnDefinitions>
+
+            <DataGrid x:Name="ResultGrid" Grid.Column="0"
+                      ItemsSource="{Binding Detections}"
+                      SelectionChanged="ResultGrid_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="危険度" Binding="{Binding LevelText}" Width="95">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{Binding LevelColor}" />
+                                <Setter Property="FontWeight" Value="SemiBold" />
+                                <Setter Property="VerticalAlignment" Value="Center" />
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="検出ルール" Binding="{Binding RuleName}" Width="220" />
+                    <DataGridTextColumn Header="ファイル名" Binding="{Binding FileName}" Width="220" />
+                    <DataGridTextColumn Header="サイズ" Binding="{Binding SizeText}" Width="80" />
+                    <DataGridTextColumn Header="場所" Binding="{Binding FilePath}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <Border Grid.Column="2" Style="{StaticResource Card}" Margin="0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="詳細" Style="{StaticResource H1}" />
+                        <TextBlock x:Name="DetailName" Text="項目を選ぶと内容が表示されます。" TextWrapping="Wrap"
+                                   FontWeight="SemiBold" Margin="0,0,0,8" />
+                        <TextBlock x:Name="DetailLevel" Margin="0,0,0,8" TextWrapping="Wrap" />
+                        <TextBlock x:Name="DetailDesc" Style="{StaticResource Caption}" Margin="0,0,0,10" />
+                        <TextBlock Text="パス" Style="{StaticResource Caption}" Margin="0,4,0,2" />
+                        <TextBox x:Name="DetailPath" IsReadOnly="True" TextWrapping="Wrap" />
+                        <TextBlock Text="SHA-256" Style="{StaticResource Caption}" Margin="0,10,0,2" />
+                        <TextBox x:Name="DetailHash" IsReadOnly="True" TextWrapping="Wrap" FontFamily="Consolas" FontSize="11" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- 対処 -->
+        <WrapPanel Grid.Row="3" Margin="0,12,0,0">
+            <Button x:Name="QuarantineButton" Style="{StaticResource PrimaryButton}"
+                    Content="選択したファイルを隔離" Click="Quarantine_Click" />
+            <Button Content="保存場所を開く" Click="Reveal_Click" />
+            <Button Content="ハッシュを定義に追加" Click="AddSignature_Click" />
+            <Button Content="CSVで保存" Click="ExportCsv_Click" />
+            <Button Content="HTMLレポート" Click="ExportHtml_Click" />
+            <Button Content="一覧を消去" Click="Clear_Click" />
+        </WrapPanel>
+    </Grid>
+</UserControl>

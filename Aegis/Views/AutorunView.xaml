@@ -1,0 +1,56 @@
+<UserControl x:Class="Aegis.Views.AutorunView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="Transparent">
+    <Grid Margin="0,12,0,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource Card}">
+            <StackPanel>
+                <TextBlock Text="自動起動の確認" Style="{StaticResource H1}" />
+                <TextBlock Style="{StaticResource Caption}"
+                           Text="パソコンの起動時に自動で動くプログラムを一覧にします。マルウェアは居座るためにここへ登録することが多いため、見覚えのない項目がないか確認してください。" />
+                <WrapPanel Margin="0,10,0,0">
+                    <Button x:Name="RunButton" Style="{StaticResource PrimaryButton}"
+                            Content="一覧を取得" Click="Run_Click" />
+                    <Button Content="選択項目を検査" Click="ScanItem_Click" />
+                    <Button Content="保存場所を開く" Click="Reveal_Click" />
+                    <Button Content="自動起動から外す" Click="Remove_Click" />
+                </WrapPanel>
+                <TextBlock x:Name="SummaryText" Margin="0,10,0,0" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <DataGrid x:Name="Grid1" Grid.Row="1" ItemsSource="{Binding Items}" SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="評価" Binding="{Binding LevelText}" Width="70">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{Binding LevelColor}" />
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="登録先" Binding="{Binding Source}" Width="150" />
+                <DataGridTextColumn Header="名前" Binding="{Binding Name}" Width="180" />
+                <DataGridTextColumn Header="署名" Binding="{Binding Signer}" Width="180" />
+                <DataGridTextColumn Header="所見" Binding="{Binding Note}" Width="240">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="コマンド" Binding="{Binding Command}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <TextBlock Grid.Row="2" Style="{StaticResource Caption}" Margin="0,10,0,0"
+                   Text="HKLM（コンピューター全体）の項目を変更するには、管理者として実行する必要があります。判断に迷う項目は、名前で検索してから削除してください。" />
+    </Grid>
+</UserControl>
